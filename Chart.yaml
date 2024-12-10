@@ -1,0 +1,11 @@
+apiVersion: v2
+name: dolibarr
+description: Open-source ERP and CRM software, Dolibarr
+type: application
+version: 0.1.0
+appVersion: "20.0.1"
+
+dependencies:
+  - name: mariadb
+    version: ^11.5.2
+    repository: https://charts.bitnami.com/bitnami

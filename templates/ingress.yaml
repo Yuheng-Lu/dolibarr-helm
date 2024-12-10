@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "dolibarr.fullname" . }}
+  labels:
+    app: {{ include "dolibarr.name" . }}
+    chart: {{ include "dolibarr.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  {{- if .Values.ingress.class }}
+  annotations:
+    kubernetes.io/ingress.class: {{ .Values.ingress.class | quote }}
+    haproxy.org/ssl-redirect: {{ .Values.ingress.sslRedirect | quote }}
+    haproxy.org/ssl-redirect-code: {{ .Values.ingress.sslRedirectCode | quote }}
+    haproxy.org/forwarded-for: {{ .Values.ingress.forwardedFor | quote }}
+  {{- end }}
+spec:
+  rules:
+    - host: {{ .Values.ingress.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "dolibarr.fullname" . }}
+                port:
+                  number: 80

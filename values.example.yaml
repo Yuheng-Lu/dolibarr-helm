@@ -1,0 +1,56 @@
+replicaCount: 1
+
+image:
+  repository: dolibarr/dolibarr
+  tag: "20.0.1"
+  pullPolicy: IfNotPresent
+
+env:
+  DOLI_DB_HOST: mariadb
+  DOLI_DB_HOST_PORT: "3306"
+  DOLI_DB_NAME: dolidb
+  DOLI_DB_USER: doliuser
+  DOLI_ADMIN_LOGIN: "admin"
+  DOLI_ADMIN_PASSWORD: "mypasswordforadminacount"
+
+service:
+  type: ClusterIP
+  port: 80
+  nodePort: 30081
+
+mariadb:
+  auth:
+    existingSecret: ""
+    rootPassword: "your-root-password"
+    password: "your-password"
+    database: dolidb
+    username: doliuser
+
+  primary:
+    containerPorts:
+      mysql: "3306"
+    persistence:
+      enabled: true
+      accessModes:
+        - ReadWriteOnce
+      size: 8Gi
+
+resources:
+  limits:
+    memory: "512Mi"
+    cpu: "1"
+  requests:
+    memory: "256Mi"
+    cpu: "0.5"
+
+pvc:
+  accessMode: ReadWriteOnce
+  storage: 5Gi
+
+ingress:
+  enabled: true
+  class: haproxy
+  sslRedirect: "true"
+  sslRedirectCode: "301"
+  forwardedFor: "true"
+  host: dolibarr.example.com

@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "dolibarr.fullname" . }}
+  labels:
+    app: {{ include "dolibarr.name" . }}
+    chart: {{ include "dolibarr.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "dolibarr.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "dolibarr.name" . }}
+    spec:
+      containers:
+        - name: dolibarr
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 80
+          env:
+            - name: DOLI_DB_HOST
+              value: {{ .Release.Name }}-{{ .Values.env.DOLI_DB_HOST }}
+            - name: DOLI_DB_HOST_PORT
+              value: "{{ .Values.env.DOLI_DB_HOST_PORT }}"
+            - name: DOLI_DB_NAME
+              value: {{ .Values.env.DOLI_DB_NAME }}
+            - name: DOLI_DB_USER
+              value: {{ .Values.env.DOLI_DB_USER }}
+            - name: DOLI_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "dolibarr.mariadbSecretName" . }}
+                  key: mariadb-password
+            - name: DOLI_ADMIN_LOGIN
+              value: "{{ .Values.env.DOLI_ADMIN_LOGIN }}"
+            - name: DOLI_ADMIN_PASSWORD
+              value: "{{ .Values.env.DOLI_ADMIN_PASSWORD }}"
+          volumeMounts:
+            - name: dolibarr-storage
+              mountPath: /var/www/html/documents
+          {{- with .Values.resources }}
+          resources:
+            limits:
+              memory: {{ .limits.memory }}
+              cpu: {{ .limits.cpu }}
+            requests:
+              memory: {{ .requests.memory }}
+              cpu: {{ .requests.cpu }}
+          {{- end }}
+      volumes:
+        - name: dolibarr-storage
+          persistentVolumeClaim:
+            claimName: {{ include "dolibarr.fullname" . }}

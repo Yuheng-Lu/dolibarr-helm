@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "dolibarr.fullname" . }}
+  labels:
+    app: {{ include "dolibarr.name" . }}
+    chart: {{ include "dolibarr.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    app: {{ include "dolibarr.name" . }}
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      {{- if eq .Values.service.type "NodePort" }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{- end }}

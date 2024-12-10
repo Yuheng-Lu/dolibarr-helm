@@ -1,0 +1,6 @@
+*.tgz
+.idea/
+*.swp
+*.tmp
+.DS_Store
+charts/
