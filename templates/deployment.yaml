@@ -43,7 +43,7 @@ spec:
               value: "{{ .Values.env.DOLI_ADMIN_PASSWORD }}"
           volumeMounts:
             - name: dolibarr-storage
-              mountPath: /var/www/html/documents
+              mountPath: /var/www/documents
           {{- with .Values.resources }}
           resources:
             limits:
